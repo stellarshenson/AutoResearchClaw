@@ -147,7 +147,7 @@ class ACPClient:
                 [acpx, "--ttl", "0", "--cwd", self._abs_cwd(),
                  self.config.agent, "sessions", "close",
                  self.config.session_name],
-                capture_output=True, timeout=15,
+                capture_output=True, timeout=15, env=self._clean_env(),
             )
         except Exception:  # noqa: BLE001
             pass
@@ -186,6 +186,17 @@ class ACPClient:
     def _abs_cwd(self) -> str:
         return os.path.abspath(self.config.cwd)
 
+    @staticmethod
+    def _clean_env() -> dict[str, str]:
+        """Return a copy of os.environ without CLAUDECODE.
+
+        The claude-agent-sdk refuses to start inside an existing Claude
+        Code session (detected via the CLAUDECODE env var).  Stripping
+        it allows acpx to spawn a fresh agent subprocess.
+        """
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+        return env
+
     def _ensure_session(self) -> None:
         """Find or create the named acpx session."""
         if self._session_ready:
@@ -195,11 +206,12 @@ class ACPClient:
             raise RuntimeError("acpx not found")
 
         # Use 'ensure' which finds existing or creates new
+        env = self._clean_env()
         result = subprocess.run(
             [acpx, "--ttl", "0", "--cwd", self._abs_cwd(),
              self.config.agent, "sessions", "ensure",
              "--name", self.config.session_name],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=30, env=env,
         )
         if result.returncode != 0:
             # Fall back to 'new'
@@ -207,7 +219,7 @@ class ACPClient:
                 [acpx, "--ttl", "0", "--cwd", self._abs_cwd(),
                  self.config.agent, "sessions", "new",
                  "--name", self.config.session_name],
-                capture_output=True, text=True, timeout=30,
+                capture_output=True, text=True, timeout=30, env=env,
             )
             if result.returncode != 0:
                 raise RuntimeError(
@@ -248,7 +260,7 @@ class ACPClient:
              self.config.agent, "-s", self.config.session_name,
              prompt],
             capture_output=True, text=True,
-            timeout=self.config.timeout_sec,
+            timeout=self.config.timeout_sec, env=self._clean_env(),
         )
 
         if result.returncode != 0:
@@ -278,7 +290,7 @@ class ACPClient:
                  self.config.agent, "-s", self.config.session_name,
                  short_prompt],
                 capture_output=True, text=True,
-                timeout=self.config.timeout_sec,
+                timeout=self.config.timeout_sec, env=self._clean_env(),
             )
 
             if result.returncode != 0:
