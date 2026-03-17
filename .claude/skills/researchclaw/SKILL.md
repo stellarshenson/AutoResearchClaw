@@ -17,7 +17,19 @@ Activate this skill when the user:
 ## Bundled Resources
 
 This skill directory contains a pre-built wheel for offline installation:
-- `researchclaw-0.5.0-py3-none-any.whl` - ResearchClaw v0.5.0 (Python 3.11+, pure Python, ~400KB)
+- `researchclaw-0.5.1-py3-none-any.whl` - ResearchClaw v0.5.1 (Python 3.11+, pure Python, ~400KB)
+
+## Path Variables
+
+Derive paths at runtime to avoid hardcoded absolute paths:
+
+```bash
+# Project root (where pyproject.toml lives)
+RC_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# Skill directory (where this SKILL.md and the wheel live)
+RC_SKILL_DIR="${RC_ROOT}/.claude/skills/researchclaw"
+```
 
 ## Instructions
 
@@ -26,8 +38,10 @@ This skill directory contains a pre-built wheel for offline installation:
 Check if `researchclaw` CLI is available. If not, install from the bundled wheel:
 
 ```bash
+RC_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
 # Install ResearchClaw from the bundled wheel in this skill directory
-pip install /home/lab/workspace/learning/external-projects/aiming-lab-AutoResearchClaw/.claude/skills/researchclaw/researchclaw-0.5.0-py3-none-any.whl
+pip install "${RC_ROOT}/.claude/skills/researchclaw/researchclaw-0.5.1-py3-none-any.whl"
 
 # Install acpx for ACP mode (Agent Client Protocol bridge)
 npm install -g acpx
@@ -35,7 +49,7 @@ npm install -g acpx
 
 Alternatively, install in dev mode from source (editable, tracks code changes):
 ```bash
-pip install -e /home/lab/workspace/learning/external-projects/aiming-lab-AutoResearchClaw
+pip install -e "${RC_ROOT}"
 ```
 
 Verify installation:
@@ -52,7 +66,8 @@ researchclaw --help && acpx --version
 
 2. If no `config.yaml`, create one from the example:
    ```bash
-   cp /home/lab/workspace/learning/external-projects/aiming-lab-AutoResearchClaw/config.researchclaw.example.yaml config.yaml
+   RC_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+   cp "${RC_ROOT}/config.researchclaw.example.yaml" config.yaml
    ```
 
 3. Configure the LLM provider. Two supported modes:
@@ -149,7 +164,7 @@ researchclaw doctor --config config.yaml
 
 ### Troubleshooting
 
-- **`researchclaw` not found**: Run `pip install -e /home/lab/workspace/learning/external-projects/aiming-lab-AutoResearchClaw`
+- **`researchclaw` not found**: Run `pip install -e "$(git rev-parse --show-toplevel)"`
 - **`acpx` not found**: Run `npm install -g acpx`
 - **Config validation error**: Run `researchclaw validate --config config.yaml`
 - **LLM connection failure**: Check `llm.base_url` and API key, or ACP agent availability
