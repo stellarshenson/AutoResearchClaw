@@ -17,7 +17,7 @@ Activate this skill when the user:
 ## Bundled Resources
 
 This skill directory contains a pre-built wheel for offline installation:
-- `researchclaw-0.5.1-py3-none-any.whl` - ResearchClaw v0.5.1 (Python 3.11+, pure Python, ~400KB)
+- `researchclaw-*.whl` - ResearchClaw (Python 3.11+, pure Python)
 
 ## Path Variables
 
@@ -41,7 +41,7 @@ Check if `researchclaw` CLI is available. If not, install from the bundled wheel
 RC_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
 # Install ResearchClaw from the bundled wheel in this skill directory
-pip install "${RC_ROOT}/.claude/skills/researchclaw/researchclaw-0.5.1-py3-none-any.whl"
+pip install "${RC_ROOT}"/.claude/skills/researchclaw/researchclaw-*.whl
 
 # Install acpx for ACP mode (Agent Client Protocol bridge)
 npm install -g acpx

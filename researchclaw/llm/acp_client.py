@@ -100,6 +100,7 @@ class ACPClient:
         temperature: float | None = None,
         json_mode: bool = False,
         system: str | None = None,
+        strip_thinking: bool = False,
     ) -> LLMResponse:
         """Send a prompt and return the agent's response.
 
@@ -110,6 +111,9 @@ class ACPClient:
         """
         prompt_text = self._messages_to_prompt(messages, system=system)
         content = self._send_prompt(prompt_text)
+        if strip_thinking:
+            from researchclaw.utils.thinking_tags import strip_thinking_tags
+            content = strip_thinking_tags(content)
         return LLMResponse(
             content=content,
             model=f"acp:{self.config.agent}",
